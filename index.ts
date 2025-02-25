@@ -17,12 +17,15 @@ interface Block {
     data: Transaction[];
     previousHash: string;
     hash: string;
+    nonce: number;
 
     calculateHash(): string;
+    mine(difficulty: number): void;
 }
 
-interface Blockchain {
+interface Chain {
     chain: Block[];
+    difficulty: number;
 
     addBlock(block: Block): void;
     createGenesisBlock(): Block;
@@ -36,6 +39,7 @@ class Block implements Block {
     ) {
         this.timestamp = new Date();
         this.hash = this.calculateHash();
+        this.nonce = 0;
     }
 
     calculateHash(): string {
@@ -43,17 +47,29 @@ class Block implements Block {
             this.index +
             this.timestamp.toISOString() +
             JSON.stringify(this.data) +
-            this.previousHash;
+            this.previousHash + this.nonce;
         return crypto.createHash("sha256").update(data).digest("hex");
+    }
+    mine(difficulty: number): void {
+        const target = "0".repeat(difficulty);
+        while (!this.hash.startsWith(target)) {
+            this.nonce++;
+            this.hash = this.calculateHash();
+            console.log(`Mining... Nonce: ${this.nonce}, Hash: ${this.hash}`);
+            // console.log(this.hash);
+
+        }
     }
 }
 
 // console.log({ genesisBlock });
 
-class Blockchain implements Blockchain {
+class Blockchain implements Chain {
     chain: Block[] = [];
+    difficulty: number;
 
-    constructor() {
+    constructor(difficulty: number) {
+        this.difficulty = difficulty
         const genesisBlock = this.createGenesisBlock();
         this.chain.push(genesisBlock);
     }
@@ -68,7 +84,11 @@ class Blockchain implements Blockchain {
             block.data,
             this.chain[this.chain.length - 1].hash
         );
-        this.chain.push(newBlock);
+        newBlock.mine(this.difficulty);
+        if (this.isValidHash(newBlock.hash, this.difficulty))
+            this.chain.push(newBlock);
+
+
     }
     createTransaction(from: string, to: string, value: number): Transaction {
         const hash = crypto
@@ -82,14 +102,26 @@ class Blockchain implements Blockchain {
             hash,
         };
     }
+
+    isValidHash(hash: string, difficulty: number): boolean {
+        const target = "0".repeat(difficulty);
+        return hash.startsWith(target);
+    }
 }
 
-const blockchain = new Blockchain();
+const blockchain = new Blockchain(2);
 const tx1 = blockchain.createTransaction("Alice", "Bob", 100);
 const tx2 = blockchain.createTransaction("Camille", "Cindy", 100);
 const block1 = new Block(0, [tx1, tx2], "");
+const block2 = new Block(0, [tx1, tx2], "");
+const block3 = new Block(0, [tx1, tx2], "");
 blockchain.addBlock(block1);
+console.log("Block 1 added");
 
+blockchain.addBlock(block2);
+console.log("Block 2 added");
+blockchain.addBlock(block3);
+console.log("Block 3 added");
 // console.log({ blockchain });
 console.log(blockchain.chain);
 
