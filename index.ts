@@ -1,8 +1,5 @@
 import crypto from "crypto";
 
-// const hash = crypto.createHash('sha256')
-// hash.update("Hello World !")
-// console.log(hash.digest("hex"));
 
 type Transaction = {
     hash: string;
