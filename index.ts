@@ -1,7 +1,7 @@
 import crypto from "crypto";
 
 
-type Transaction = {
+interface Transaction {
     hash: string;
     from: string;
     to: string;
