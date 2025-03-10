@@ -1,12 +1,8 @@
 import crypto from "crypto";
+import { Transaction } from "./interfaces/Transaction";
+import { Chain } from "./interfaces/Chain";
+import { BlockInterface } from "./interfaces/BlockInterface";
 
-
-interface Transaction {
-    hash: string;
-    from: string;
-    to: string;
-    value: number;
-};
 
 interface Block {
     index: number;
@@ -20,15 +16,10 @@ interface Block {
     mine(difficulty: number): void;
 }
 
-interface Chain {
-    chain: Block[];
-    difficulty: number;
 
-    addBlock(block: Block): void;
-    createGenesisBlock(): Block;
-}
 
-class Block implements Block {
+
+class Block implements BlockInterface {
     constructor(
         public index: number,
         public data: Transaction[],
