@@ -19,6 +19,8 @@ interface Block {
 
 
 
+
+
 class Block implements BlockInterface {
     constructor(
         public index: number,
